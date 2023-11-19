@@ -72,7 +72,7 @@ print(len(moves))
 
 ## Misc
 
-To use a custom VisualCube server, set the `VISUAL_CUBE_HOST` environment variable:
+To use a custom [VisualCube](https://github.com/Cride5/visualcube) server, set the `VISUAL_CUBE_HOST` environment variable:
 
 ```bash
 export VISUAL_CUBE_HOST="http://localhost:80"

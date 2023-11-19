@@ -9,7 +9,7 @@ Python 3 implementation of a (3x3x3) Rubik's Cube utility.
 Clone the repository and navigate to the project directory:
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/LindomarRodrigues/MagicCube.git
 cd rubiks-cube
 ```
 

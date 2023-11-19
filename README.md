@@ -4,6 +4,15 @@ Python 3 implementation of a (3x3x3) Rubik's Cube utility.
 
 ![3x3x3 Rubik's Cube](cube.png)
 
+## TODO (Open to contributions)
+
+- [ ] Refactor `Cube` class to be more easy to understand
+- [ ] Replace VisualCube with a custom implementation of a 3D cube visualization
+- [ ] Optimize the `Solver` classes
+- [ ] Add more solvers
+- [ ] Add support for other cube sizes (2x2x2, 4x4x4, 5x5x5, etc.)
+- [ ] Add support for other cube types (Pyraminx, Megaminx, etc.)
+
 ## Installation
 
 Clone the repository and navigate to the project directory:
@@ -72,11 +81,14 @@ print(len(moves))
 
 ## Misc
 
-To use a custom [VisualCube](https://github.com/Cride5/visualcube) server, set the `VISUAL_CUBE_HOST` environment variable:
+To use a custom [VisualCube](https://github.com/Cride5/visualcube) server, set the `VISUAL_CUBE_HOST` environment
+variable:
 
 ```bash
 export VISUAL_CUBE_HOST="http://localhost:80"
 ```
+
+
 
 
 

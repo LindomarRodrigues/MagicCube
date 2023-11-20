@@ -6,9 +6,9 @@ Python 3 implementation of a (3x3x3) Rubik's Cube utility.
 
 ## TODO (Open to contributions)
 
+- [ ] CFOP is not Optimal, need to reimplement F2L and refactor PLL 
 - [ ] Refactor `Cube` class to be more easy to understand
 - [ ] Replace VisualCube with a custom implementation of a 3D cube visualization
-- [ ] Optimize the `Solver` classes
 - [ ] Add more solvers
 - [ ] Add support for other cube sizes (2x2x2, 4x4x4, 5x5x5, etc.)
 - [ ] Add support for other cube types (Pyraminx, Megaminx, etc.)
@@ -64,6 +64,17 @@ Solver the cube using Layer by Layer (LBL) method:
 from solvers.layer_by_layer import LayerByLayerSolver
 
 solver = LayerByLayerSolver(cube)
+solver.solve()
+
+print(solver.moves)
+```
+
+Or using the Fridrich(CFOP) method:
+
+```python
+from solvers.CFOP import CfopSolver
+
+solver = CfopSolver(cube)
 solver.solve()
 
 print(solver.moves)

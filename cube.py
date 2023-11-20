@@ -32,6 +32,8 @@ FACES_COLORS = {
     'B': 'G'
 }
 
+FACES_COLORS_INV = {v: k for k, v in FACES_COLORS.items()}
+
 FACES_CODES = {
     'U': 0,
     'R': 1,
@@ -201,6 +203,13 @@ class Cube:
 
             return FACES_COLORS[CORNERS_CODES_INV[self.cube['corners'][piece]][piece_idx]]
 
+    def normalize_rotations(self):
+        for piece in self.cube['corners_rotations']:
+            self.cube['corners_rotations'][piece] = self.cube['corners_rotations'][piece] % 3
+
+        for piece in self.cube['edges_rotations']:
+            self.cube['edges_rotations'][piece] = self.cube['edges_rotations'][piece] % 2
+
     def get_relative_piece_color(self, face, piece):
         # piece = self.get_piece(piece)
 
@@ -221,6 +230,21 @@ class Cube:
             for corner in CORNERS_CODES:
                 if self.get_piece(corner) == piece:
                     return corner
+
+    def search_piece_rotation(self, piece):
+        piece = self.get_relative_piece_position(piece)
+
+        if len(piece) == 1:
+            return 0
+        elif len(piece) == 2:
+            return self.cube['edges_rotations'][piece]
+        elif len(piece) == 3:
+            return self.cube['corners_rotations'][piece]
+
+    def get_face_of_color(self, color, piece):
+        for face in piece:
+            if self.get_face_piece_color(face, piece) == color:
+                return face
 
     def pprint(self):
         face = 'B'

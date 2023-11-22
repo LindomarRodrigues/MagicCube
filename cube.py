@@ -82,6 +82,24 @@ class Cube:
     if VISUAL_CUBE_HOST[-1] == '/':
         VISUAL_CUBE_HOST = VISUAL_CUBE_HOST[:-1]
 
+    ALLOWED_MOVES = [
+        'U', 'U\'', 'U2',
+        'R', 'R\'', 'R2',
+        'F', 'F\'', 'F2',
+        'D', 'D\'', 'D2',
+        'L', 'L\'', 'L2',
+        'B', 'B\'', 'B2'
+    ]
+
+    OTHERS_ALLOWED_MOVES = [
+        'M', 'M\'', 'M2',
+        'E', 'E\'', 'E2',
+        'S', 'S\'', 'S2',
+        'X', 'X\'', 'X2',
+        'Y', 'Y\'', 'Y2',
+        'Z', 'Z\'', 'Z2'
+    ]
+
     def __init__(self):
         self.cube = {
             'corners': {
@@ -314,8 +332,8 @@ class Cube:
 
             self.get_face_piece_color('L', 'ULB'), self.get_face_piece_color('L', 'UL'),
             self.get_face_piece_color('L', 'UFL'),
-            self.get_face_piece_color('L', 'FL'), self.get_face_piece_color('L', 'L'),
-            self.get_face_piece_color('L', 'BL'),
+            self.get_face_piece_color('L', 'BL'), self.get_face_piece_color('L', 'L'),
+            self.get_face_piece_color('L', 'FL'),
             self.get_face_piece_color('L', 'DBL'), self.get_face_piece_color('L', 'DL'),
             self.get_face_piece_color('L', 'DLF'),
 
@@ -328,6 +346,12 @@ class Cube:
 
         ]
         return facelet_colors
+    def facelet(self):
+        facelet_colors = self.facelet_colors()
+
+        facelet = [FACES_COLORS_INV[color] for color in facelet_colors]
+
+        return facelet
 
     def move(self, move, direction='cw', quantity=1):
         faces_swap = []
@@ -483,10 +507,18 @@ class Cube:
 
         return True
 
+    def is_cross_solved(self):
+
+        for edge in [edge for edge in EDGES_CODES if 'D' in edge]:
+            for face in edge:
+                if self.get_face_piece_color(face, edge) != self.get_face_piece_color(face, face):
+                    return False
+
+        return True
+
     def moves(self, moves=None):
         moves_ = ['F', 'F\'', 'F2', 'B', 'B\'', 'B2', 'R', 'R\'', 'R2', 'L', 'L\'', 'L2', 'U', 'U\'', 'U2', 'D', 'D\'',
-                  'D2',
-                  'X', 'X\'', 'X2', 'Y', 'Y\'', 'Y2', 'Z', 'Z\'', 'Z2']
+                  'D2']
 
         if moves is None:
             moves = random.choices(moves_, k=100)
@@ -510,3 +542,30 @@ class Cube:
         img = self.visualcube_image()
         plt.imshow(img)
         plt.show()
+
+    def white_to_bottom(self):
+        if self.cube['faces']['U'] == FACES_CODES['D']:
+            self.move('X', 'cw', 2)
+
+        elif self.cube['faces']['F'] == FACES_CODES['D']:
+            self.move('X', 'ccw', 1)
+        elif self.cube['faces']['B'] == FACES_CODES['D']:
+            self.move('X', 'cw', 1)
+
+        elif self.cube['faces']['R'] == FACES_CODES['D']:
+            self.move('Z', 'cw', 1)
+        elif self.cube['faces']['L'] == FACES_CODES['D']:
+            self.move('Z', 'ccw', 1)
+        else:
+            return
+
+    def blue_to_front(self):
+
+        if self.cube['faces']['R'] == FACES_CODES['F']:
+            self.move('Y', 'cw', 1)
+        elif self.cube['faces']['L'] == FACES_CODES['F']:
+            self.move('Y', 'ccw', 1)
+        elif self.cube['faces']['B'] == FACES_CODES['F']:
+            self.move('Y', 'cw', 2)
+        else:
+            return

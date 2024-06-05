@@ -2,6 +2,7 @@ import os
 import random
 from io import BytesIO
 
+import numpy as np
 import requests
 from matplotlib import image as mpimg, pyplot as plt
 
@@ -57,7 +58,48 @@ CORNERS_CODES = {
 }
 
 CORNERS_CODES_INV = {v: k for k, v in CORNERS_CODES.items()}
-
+BIT_CORNERS_CODES = {
+    'URF': [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 1, 0]
+    ],
+    'UFL': [
+        [0, 0, 0, 1, 1],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 1]
+    ],
+    'ULB': [
+        [0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 1],
+        [0, 1, 0, 0, 0]
+    ],
+    'UBR': [
+        [0, 1, 0, 0, 1],
+        [0, 1, 0, 1, 0],
+        [0, 1, 0, 1, 1]
+    ],
+    'DFR': [
+        [0, 1, 1, 0, 0],
+        [0, 1, 1, 0, 1],
+        [0, 1, 1, 1, 0]
+    ],
+    'DLF': [
+        [0, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1]
+    ],
+    'DBL': [
+        [1, 0, 0, 1, 0],
+        [1, 0, 0, 1, 1],
+        [1, 0, 1, 0, 0]
+    ],
+    'DRB': [
+        [1, 0, 1, 0, 1],
+        [1, 0, 1, 1, 0],
+        [1, 0, 1, 1, 1]
+    ]
+}
 EDGES_CODES = {
     'UR': 0,
     'UF': 1,
@@ -72,12 +114,61 @@ EDGES_CODES = {
     'BL': 10,
     'BR': 11
 }
-
 EDGES_CODES_INV = {v: k for k, v in EDGES_CODES.items()}
+BIT_EDGES_CODES = {
+    'UR': [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1]
+    ],
+    'UF': [
+        [0, 0, 0, 1, 0],
+        [0, 0, 0, 1, 1]
+    ],
+    'UL': [
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 1]
+    ],
+    'UB': [
+        [0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 1]
+    ],
+    'DR': [
+        [0, 1, 0, 0, 0],
+        [0, 1, 0, 0, 1]
+    ],
+    'DF': [
+        [0, 1, 0, 1, 0],
+        [0, 1, 0, 1, 1]
+    ],
+    'DL': [
+        [0, 1, 1, 0, 0],
+        [0, 1, 1, 0, 1]
+    ],
+    'DB': [
+        [0, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1]
+    ],
+    'FR': [
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1]
+    ],
+    'FL': [
+        [1, 0, 0, 1, 0],
+        [1, 0, 0, 1, 1]
+    ],
+    'BL': [
+        [1, 0, 1, 0, 0],
+        [1, 0, 1, 0, 1]
+    ],
+    'BR': [
+        [1, 0, 1, 1, 0],
+        [1, 0, 1, 1, 1]
+    ]
+}
 
 
 class Cube:
-    VISUAL_CUBE_HOST = 'http://cube.rider.biz' if not 'VISUAL_CUBE_HOST' in os.environ else os.environ[
+    VISUAL_CUBE_HOST = 'https://cube.rider.biz' if not 'VISUAL_CUBE_HOST' in os.environ else os.environ[
         'VISUAL_CUBE_HOST']
     if VISUAL_CUBE_HOST[-1] == '/':
         VISUAL_CUBE_HOST = VISUAL_CUBE_HOST[:-1]
@@ -160,6 +251,65 @@ class Cube:
             }
         }
 
+    def to_bit_array(self):
+        bit_array = []
+        for piece in ['URF', 'UFL', 'ULB', 'UBR', 'DFR', 'DLF', 'DBL']:  # DRB is not needed
+            bit_array.append(BIT_CORNERS_CODES[CORNERS_CODES_INV[self.cube['corners'][piece]]][
+                                 self.cube['corners_rotations'][piece] % 3])
+        for piece in ['UR', 'UF', 'UL', 'UB', 'DR', 'DF', 'DL', 'DB', 'FR', 'FL', 'BL']:  # BR is not needed
+            bit_array.append(BIT_EDGES_CODES[EDGES_CODES_INV[self.cube['edges'][piece]]][
+                                 self.cube['edges_rotations'][piece] % 2])
+        bit_array = np.array(bit_array, dtype=bool)
+        # print(bit_array)
+        return bit_array
+
+    def to_array_faces(self):
+        facelets_color = [
+            self.get_face_piece_color('U', 'ULB'), self.get_face_piece_color('U', 'UB'),
+            self.get_face_piece_color('U', 'UBR'),
+            self.get_face_piece_color('U', 'UL'),  self.get_face_piece_color('U', 'UR'),
+            self.get_face_piece_color('U', 'UFL'), self.get_face_piece_color('U', 'UF'),
+            self.get_face_piece_color('U', 'URF'),
+
+            self.get_face_piece_color('R', 'URF'), self.get_face_piece_color('R', 'UR'),
+            self.get_face_piece_color('R', 'UBR'),
+            self.get_face_piece_color('R', 'FR'),
+            self.get_face_piece_color('R', 'BR'),
+            self.get_face_piece_color('R', 'DFR'), self.get_face_piece_color('R', 'DR'),
+            self.get_face_piece_color('R', 'DRB'),
+
+            self.get_face_piece_color('F', 'UFL'), self.get_face_piece_color('F', 'UF'),
+            self.get_face_piece_color('F', 'URF'),
+            self.get_face_piece_color('F', 'FL'),
+            self.get_face_piece_color('F', 'FR'),
+            self.get_face_piece_color('F', 'DLF'), self.get_face_piece_color('F', 'DF'),
+            self.get_face_piece_color('F', 'DFR'),
+
+            self.get_face_piece_color('D', 'DLF'), self.get_face_piece_color('D', 'DF'),
+            self.get_face_piece_color('D', 'DFR'),
+            self.get_face_piece_color('D', 'DL'),
+            self.get_face_piece_color('D', 'DR'),
+            self.get_face_piece_color('D', 'DBL'), self.get_face_piece_color('D', 'DB'),
+            self.get_face_piece_color('D', 'DRB'),
+
+            self.get_face_piece_color('L', 'ULB'), self.get_face_piece_color('L', 'UL'),
+            self.get_face_piece_color('L', 'UFL'),
+            self.get_face_piece_color('L', 'BL'),
+            self.get_face_piece_color('L', 'FL'),
+            self.get_face_piece_color('L', 'DBL'), self.get_face_piece_color('L', 'DL'),
+            self.get_face_piece_color('L', 'DLF'),
+
+            self.get_face_piece_color('B', 'UBR'), self.get_face_piece_color('B', 'UB'),
+            self.get_face_piece_color('B', 'ULB'),
+            self.get_face_piece_color('B', 'BR'),
+            self.get_face_piece_color('B', 'BL'),
+            self.get_face_piece_color('B', 'DRB'), self.get_face_piece_color('B', 'DB'),
+            self.get_face_piece_color('B', 'DBL')
+
+        ]
+        facelets = [FACES_CODES[FACES_COLORS_INV[color]] for color in facelets_color]
+
+        return np.array(facelets)
     def get_relative_piece_position(self, piece='URF'):
 
         piece = ''.join([FACES_CODES_INV[self.cube['faces'][face]] for face in piece])
@@ -346,6 +496,7 @@ class Cube:
 
         ]
         return facelet_colors
+
     def facelet(self):
         facelet_colors = self.facelet_colors()
 
@@ -521,7 +672,7 @@ class Cube:
                   'D2']
 
         if moves is None:
-            moves = random.choices(moves_, k=100)
+            moves = random.choices(moves_, k=5)
         elif type(moves) is str:
             moves = moves.split(' ')
 
@@ -531,12 +682,14 @@ class Cube:
                       1 if len(move) == 1 else 2 if move[1] == '2' else 1)
 
     def visualcube_url(self):
-        url = f"{self.VISUAL_CUBE_HOST}/visualcube.php?fmt=png&size=200&fc={''.join(self.facelet_colors()).lower()}"
+        url = f"{self.VISUAL_CUBE_HOST}/visualcube.php?fmt=jpg&size=200&fc={''.join(self.facelet_colors()).lower()}"
         return url
 
     def visualcube_image(self):
+
+        print(self.visualcube_url())
         response = requests.get(self.visualcube_url())
-        return mpimg.imread(BytesIO(response.content))
+        return mpimg.imread(BytesIO(response.content), format='jpg')
 
     def plot(self):
         img = self.visualcube_image()

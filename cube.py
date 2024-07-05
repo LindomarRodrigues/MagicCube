@@ -174,12 +174,18 @@ class Cube:
         VISUAL_CUBE_HOST = VISUAL_CUBE_HOST[:-1]
 
     ALLOWED_MOVES = [
-        'U', 'U\'', 'U2',
-        'R', 'R\'', 'R2',
-        'F', 'F\'', 'F2',
-        'D', 'D\'', 'D2',
-        'L', 'L\'', 'L2',
-        'B', 'B\'', 'B2'
+        'U', 'U\'',
+        'U2',
+        'R', 'R\'',
+        'R2',
+        'F', 'F\'',
+        'F2',
+        'D', 'D\'',
+        'D2',
+        'L', 'L\'',
+        'L2',
+        'B', 'B\'',
+        'B2'
     ]
 
     OTHERS_ALLOWED_MOVES = [
@@ -667,12 +673,12 @@ class Cube:
 
         return True
 
-    def moves(self, moves=None):
+    def moves(self, moves=None,k=100):
         moves_ = ['F', 'F\'', 'F2', 'B', 'B\'', 'B2', 'R', 'R\'', 'R2', 'L', 'L\'', 'L2', 'U', 'U\'', 'U2', 'D', 'D\'',
                   'D2']
 
         if moves is None:
-            moves = random.choices(moves_, k=5)
+            moves = random.choices(moves_, k=k)
         elif type(moves) is str:
             moves = moves.split(' ')
 
@@ -680,14 +686,15 @@ class Cube:
             self.move(move[0],
                       'cw' if len(move) == 1 else 'ccw' if move[1] == '\'' else 'cw',
                       1 if len(move) == 1 else 2 if move[1] == '2' else 1)
+        return moves
 
     def visualcube_url(self):
-        url = f"{self.VISUAL_CUBE_HOST}/visualcube.php?fmt=jpg&size=200&fc={''.join(self.facelet_colors()).lower()}"
+        url = f"{self.VISUAL_CUBE_HOST}/visualcube.php?fmt=jpg&size=400&fc={''.join(self.facelet_colors()).lower()}"
         return url
 
     def visualcube_image(self):
 
-        print(self.visualcube_url())
+        # print(self.visualcube_url())
         response = requests.get(self.visualcube_url())
         return mpimg.imread(BytesIO(response.content), format='jpg')
 

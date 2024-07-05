@@ -1,3 +1,6 @@
 matplotlib~=3.8.1
 requests~=2.31.0
 peewee~=3.17.0
+pycuber
+numpy
+pulp
